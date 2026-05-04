@@ -1,0 +1,45 @@
+
+
+<!-- password = Rohit@,9022 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Slideshow</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<div id="editToolbar">
+  <button id="startEditBtn">✏️ Start Editing</button>
+  <button id="completedBtn" disabled>✔ Completed</button>
+  <button id="saveBtn">💾 Save</button>
+  <input type="file" id="loadInput" accept=".json" style="display:none">
+  <button id="loadBtn">📂 Load</button>
+</div>
+
+
+<h2>📁 Image Selection</h2>
+
+<input type="file" id="fileInput" multiple accept="image/*">
+
+<table id="imageTable"></table>
+
+<button id="finalizeBtn">✔ Finalize Selection</button>
+
+<hr>
+
+<h2>🗂 Reorder Selected Images</h2>
+<div id="selectedList"></div>
+
+<label>
+    ⏱ Slide delay (ms):
+    <input type="number" id="delayInput" value="1000" min="100">
+</label>
+
+<button id="startShowBtn">▶ Start Slide Show</button>
+
+<script src="script.js"></script>
+</body>
+</html>

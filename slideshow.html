@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Slideshow</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f5f6fa;
+    color: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 30px;
+}
+
+h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #4f46e5;
+    margin-bottom: 20px;
+}
+
+#viewer {
+    width: 800px;
+    height: 500px;
+    border: 1.5px solid #e0e0ef;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 4px 24px #4f46e511;
+}
+
+#viewer img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+    transition: opacity 0.3s ease;
+}
+
+.controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+button {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 26px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+}
+
+button:hover  { opacity: 0.85; transform: scale(1.04); }
+button:active { transform: scale(0.97); }
+
+#pauseBtn  { background: #f59e0b; color: #fff; }
+#resumeBtn { background: #16a34a; color: #fff; }
+#backBtn   { background: #e5e7eb; color: #374151; }
+</style>
+</head>
+<body>
+
+<h2>▶ Slideshow</h2>
+
+<div id="viewer">
+    <img id="slideImg">
+</div>
+
+<div class="controls">
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="resumeBtn">▶ Resume</button>
+    <button id="backBtn">✕ Close</button>
+</div>
+
+<script>
+let selectedImages = JSON.parse(localStorage.getItem("slides"));
+let delay = Math.max(100, parseInt(localStorage.getItem("delay"), 10) || 1000);
+
+if (!selectedImages || selectedImages.length === 0) {
+    document.body.innerHTML = "<p style='color:#aaa'>No slides found. Please go back.</p>";
+}
+
+let index = 0;
+let timer;
+
+const $img = $("#slideImg");
+$img.attr("src", selectedImages[index]);
+
+function startTimer() {
+    timer = setInterval(() => {
+        index = (index + 1) % selectedImages.length;
+        $img.css("opacity", 0);
+        setTimeout(() => {
+            $img.attr("src", selectedImages[index]);
+            $img.css("opacity", 1);
+        }, 150);
+    }, delay);
+}
+
+startTimer();
+
+$("#pauseBtn")[0].addEventListener("click", () => {
+    clearInterval(timer);
+});
+
+$("#resumeBtn")[0].addEventListener("click", () => {
+    clearInterval(timer);
+    startTimer();
+});
+
+$("#backBtn")[0].addEventListener("click", () => {
+    window.close();
+});
+</script>
+
+</body>
+</html>
