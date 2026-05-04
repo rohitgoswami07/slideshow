@@ -7,7 +7,12 @@
     <meta charset="UTF-8">
     <title>Image Slideshow</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <script src="auth.js"></script>
+    <script src="db.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 <body>
 
@@ -15,11 +20,9 @@
   <button id="startEditBtn">✏️ Start Editing</button>
   <button id="completedBtn" disabled>✔ Completed</button>
   <button id="saveBtn">💾 Save</button>
-  <input type="file" id="loadInput" accept=".json" style="display:none">
   <button id="loadBtn">📂 Load</button>
+  <button id="logoutBtn">🚪 Logout</button>
 </div>
-
-
 <h2>📁 Image Selection</h2>
 
 <input type="file" id="fileInput" multiple accept="image/*">

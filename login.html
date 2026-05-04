@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login — Slideshow</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f5f6fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 36px 40px;
+      width: 360px;
+      box-shadow: 0 4px 24px #4f46e511;
+      border: 1.5px solid #e0e0ef;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #4f46e5;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid #c7d2fe;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+      color: #1a1a2e;
+      background: #fff;
+    }
+
+    input:focus { outline: none; border-color: #4f46e5; }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: opacity 0.15s;
+    }
+
+    button:hover { opacity: 0.85; }
+
+    #loginBtn    { background: #4f46e5; color: #fff; }
+    #registerBtn { background: #16a34a; color: #fff; }
+
+    #msg {
+      font-size: 0.82rem;
+      text-align: center;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+
+    .error   { color: #dc2626; }
+    .success { color: #16a34a; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🎞 Slideshow</h2>
+  <input type="text" id="usernameInput" placeholder="Username">
+  <input type="password" id="passwordInput" placeholder="Password">
+  <button id="loginBtn">Login</button>
+  <button id="registerBtn">Register</button>
+  <p id="msg"></p>
+</div>
+
+<script>
+  _supabase.auth.getSession().then(({ data }) => {
+    if (data.session) window.location.href = "index.html";
+  });
+
+  function showMsg(text, type) {
+    const msg = document.getElementById("msg");
+    msg.textContent = text;
+    msg.className = type;
+  }
+
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const username = document.getElementById("usernameInput").value.trim();
+  const password = document.getElementById("passwordInput").value;
+  if (!username || !password) { showMsg("Fill in all fields", "error"); return; }
+
+  const email = username + "@slideshow.app";
+  const { error } = await _supabase.auth.signInWithPassword({ email, password });
+  if (error) { showMsg("Invalid username or password", "error"); return; }
+  window.location.href = "index.html";
+});
+
+document.getElementById("registerBtn").addEventListener("click", async () => {
+  const username = document.getElementById("usernameInput").value.trim();
+  const password = document.getElementById("passwordInput").value;
+  if (!username || !password) { showMsg("Fill in all fields", "error"); return; }
+  if (password.length < 6)    { showMsg("Password min 6 characters", "error"); return; }
+  if (username.includes("@")) { showMsg("Username cannot contain @", "error"); return; }
+
+  const email = username + "@slideshow.app";
+  const { error } = await _supabase.auth.signUp({ email, password });
+  if (error) { showMsg(error.message, "error"); return; }
+  showMsg("Registered! You can now login.", "success");
+});
+
+</script>
+
+</body>
+</html>

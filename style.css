@@ -289,3 +289,26 @@ label {
     border-radius: 8px;
     cursor: pointer;
 }
+#logoutBtn {
+    background: #dc2626;
+    color: #fff;
+    padding: 9px 22px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+}
+
+#saveBtn {
+    background: #0369a1;
+    color: #fff;
+    padding: 9px 22px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+}
+
+#loadBtn {
+    background: #7c3aed;
+    color: #fff;
+    padding: 9px 22px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+}

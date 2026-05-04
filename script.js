@@ -1,3 +1,4 @@
+requireAuth();
 let allImages = [];
 let selectedImages = [];
 
@@ -63,7 +64,10 @@ $("#finalizeBtn")[0].addEventListener("click", () => {
   renderSelectedList();
 });
 /* ── SAVE SESSION ── */
-$("#saveBtn")[0].addEventListener("click", () => {
+$("#saveBtn")[0].addEventListener("click", async () => {
+  if (editMode) return;
+  const name = prompt("Enter session name:") || "My Session";
+
   const session = {
     delay: parseInt($("#delayInput").val(), 10) || 1000,
     selectedImages: selectedImages,
@@ -75,85 +79,52 @@ $("#saveBtn")[0].addEventListener("click", () => {
     const state = btnState.get(btn) || {};
     session.buttons[id] = {
       moved:        state.moved || false,
-      left:         parseFloat(btn.style.left)        || null,
-      top:          parseFloat(btn.style.top)         || null,
-      width:        parseFloat(btn.style.width)       || null,
-      height:       parseFloat(btn.style.height)      || null,
-      borderRadius: parseFloat(btn.style.borderRadius)|| null,
+      left:         parseFloat(btn.style.left)         || null,
+      top:          parseFloat(btn.style.top)          || null,
+      width:        parseFloat(btn.style.width)        || null,
+      height:       parseFloat(btn.style.height)       || null,
+      borderRadius: parseFloat(btn.style.borderRadius) || null,
     };
   });
 
-  const blob = new Blob([JSON.stringify(session, null, 2)], { type: "application/json" });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement("a");
-  a.href     = url;
-  a.download = "slideshow-session.json";
-  a.click();
-  URL.revokeObjectURL(url);
+  const result = await saveSessionToDB(name, session);
+  if (result) alert("Session saved to database!");
 });
 
 /* ── LOAD SESSION ── */
-$("#loadBtn")[0].addEventListener("click", () => {
-  $("#loadInput")[0].click();
-});
+$("#loadBtn")[0].addEventListener("click", async () => {
+  if (editMode) return;
+  const sessions = await loadSessionsFromDB();
+  if (sessions.length === 0) { alert("No saved sessions found!"); return; }
 
-$("#loadInput")[0].addEventListener("change", function (e) {
-  const file = e.target.files[0];
-  if (!file) return;
+  const names = sessions.map((s, i) => `${i + 1}. ${s.name}`).join("\n");
+  const pick  = parseInt(prompt("Pick a session:\n" + names)) - 1;
+  if (isNaN(pick) || pick < 0 || pick >= sessions.length) return;
 
-  const reader = new FileReader();
-  reader.addEventListener("load", function (event) {
-    const session = JSON.parse(event.target.result);
+  const s = sessions[pick];
+  $("#delayInput").val(s.delay);
+  selectedImages = JSON.parse(s.selected_images);
+  renderSelectedList();
 
-    // restore delay
-    if (session.delay) {
-      $("#delayInput").val(session.delay);
-    }
+  const buttons = JSON.parse(s.buttons);
+  draggableBtns.forEach((id) => {
+    const btn   = document.getElementById(id);
+    const saved = buttons[id];
+    if (!saved || !saved.moved) return;
 
-    // restore selected images
-    if (Array.isArray(session.selectedImages)) {
-      selectedImages = session.selectedImages;
-      renderSelectedList();
-    }
+    btn.style.position    = "fixed";
+    btn.style.left        = saved.left         + "px";
+    btn.style.top         = saved.top          + "px";
+    btn.style.width       = saved.width        + "px";
+    if (saved.height)       btn.style.height       = saved.height       + "px";
+    if (saved.borderRadius) btn.style.borderRadius = saved.borderRadius + "px";
+    btn.style.margin      = "0";
 
-    // restore button positions
-    if (session.buttons) {
-      draggableBtns.forEach((id) => {
-        const btn = document.getElementById(id);
-        const saved = session.buttons[id];
-        if (!saved || !saved.moved) return;
-
-        btn.style.position    = "fixed";
-        btn.style.left        = saved.left         + "px";
-        btn.style.top         = saved.top          + "px";
-        btn.style.width       = saved.width        + "px";
-        if (saved.height)       btn.style.height       = saved.height       + "px";
-        if (saved.borderRadius) btn.style.borderRadius = saved.borderRadius + "px";
-        btn.style.margin      = "0";
-
-        btnState.set(btn, {
-          moved:     true,
-          fixedLeft: saved.left,
-          fixedTop:  saved.top,
-        });
-
-        // remove from normal flow — insert placeholder
-        if (btn.parentNode && btn.style.position !== "fixed") {
-          const ph = document.createElement("div");
-          ph.style.width   = saved.width  + "px";
-          ph.style.height  = (saved.height || btn.offsetHeight) + "px";
-          ph.style.display = "inline-block";
-          btn.parentNode.insertBefore(ph, btn);
-        }
-      });
-    }
-
-    // reset load input so same file can be loaded again
-    e.target.value = "";
+    btnState.set(btn, { moved: true, fixedLeft: saved.left, fixedTop: saved.top });
   });
-
-  reader.readAsText(file);
 });
+$("#logoutBtn")[0].addEventListener("click", logout);
+
 
 /* ── RENDER SELECTED LIST ── */
 function renderSelectedList() {
